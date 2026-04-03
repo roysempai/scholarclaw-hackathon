@@ -72,15 +72,15 @@ async def generate_draft(
         logger.warning("No scheme found for draft generation")
         return _generate_generic_draft(student_profile)
 
-    # Check if Claude API is available
-    if not settings.ANTHROPIC_API_KEY:
-        logger.warning("ANTHROPIC_API_KEY not set — using template-based draft")
+    # Check if Groq API is available
+    if not settings.GROQ_API_KEY:
+        logger.warning("GROQ_API_KEY not set — using template-based draft")
         return _generate_template_draft(student_profile, scheme)
 
     try:
-        return await _claude_draft_generation(student_profile, scheme)
+        return await _llm_draft_generation(student_profile, scheme)
     except Exception as exc:
-        logger.error("Claude draft generation failed: %s", exc)
+        logger.error("LLM draft generation failed: %s", exc)
         return _generate_template_draft(student_profile, scheme)
 
 
@@ -105,17 +105,16 @@ async def _get_scheme(scheme_id: str) -> Optional[dict]:
     return None
 
 
-async def _claude_draft_generation(
+async def _llm_draft_generation(
     student_profile: dict[str, Any],
     scheme: dict[str, Any],
 ) -> str:
     """
-    Generate draft using Claude API with Instructor.
+    Generate draft using Groq API with LLaMA model.
     """
-    import instructor
-    from anthropic import Anthropic
+    from groq import Groq
 
-    client = instructor.from_anthropic(Anthropic(api_key=settings.ANTHROPIC_API_KEY))
+    client = Groq(api_key=settings.GROQ_API_KEY)
 
     # Extract student name
     student_name = student_profile.get("name", "the applicant")
@@ -134,13 +133,13 @@ Eligibility: {scheme.get('eligibility_criteria', 'Not specified')}
 Required Documents: {scheme.get('required_documents', 'Not specified')}
 
 TASK:
-Generate a professional scholarship application draft for {student_name}. The draft should:
+Generate a professional scholarship application draft for {student_name}. The draft should include:
 
-1. Personal Statement: Write a compelling personal statement (2-3 paragraphs) that introduces the student and their background
-2. Academic Achievements: Highlight their academic accomplishments based on the profile
-3. Financial Need Statement: Craft a dignified statement about financial circumstances
-4. Future Goals: Describe their academic and career aspirations
-5. Additional Information: Include any other relevant details
+1. **Personal Statement** (2-3 paragraphs): Introduce the student and their background
+2. **Academic Achievements**: Highlight their academic accomplishments based on the profile
+3. **Statement of Financial Need**: Craft a dignified statement about financial circumstances
+4. **Future Goals**: Describe their academic and career aspirations
+5. **Additional Information**: Include any other relevant details
 
 Guidelines:
 - Be professional but personal
@@ -148,17 +147,23 @@ Guidelines:
 - Align the application with the scholarship's focus
 - Be honest and authentic
 - Keep each section concise but impactful
-"""
 
-    draft = client.messages.create(
-        model="claude-3-5-sonnet-20241022",
-        max_tokens=2048,
+Format the response with clear section headers using markdown (## for headers)."""
+
+    response = client.chat.completions.create(
+        model=settings.GROQ_MODEL,
         messages=[{"role": "user", "content": prompt}],
-        response_model=ApplicationDraft,
+        max_tokens=2048,
+        temperature=0.7,
     )
 
-    # Format the draft sections
-    return _format_draft(draft, scheme.get("name", "Scholarship"))
+    content = response.choices[0].message.content.strip()
+
+    # Add title if not present
+    if not content.startswith("#"):
+        content = f"# Application for {scheme.get('name', 'Scholarship')}\n\n{content}"
+
+    return content
 
 
 def _format_draft(draft: ApplicationDraft, scheme_name: str) -> str:

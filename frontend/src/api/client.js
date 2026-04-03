@@ -13,6 +13,9 @@ client.interceptors.request.use(
     const token = localStorage.getItem('access_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log('[API] Request with token:', config.url);
+    } else {
+      console.log('[API] Request without token:', config.url);
     }
     return config;
   },
@@ -20,10 +23,13 @@ client.interceptors.request.use(
 );
 
 // Response interceptor: 401 -> redirect to /login, clear token
+// Note: 403 means authenticated but not authorized - don't log out
 client.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Only log out on 401 (invalid/expired token), not 403 (insufficient permissions)
     if (error.response?.status === 401) {
+      // Clear tokens and redirect to login
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
       window.location.href = '/login';
@@ -56,7 +62,7 @@ export const schemesAPI = {
 
 // Audit API
 export const auditAPI = {
-  getChain: (params = {}) => client.get('/audit/chain', { params }),
+  getChain: (params = {}) => client.get('/audit/logs', { params }),
   verify: () => client.get('/audit/verify'),
   getAttacks: () => client.get('/audit/attacks'),
 };

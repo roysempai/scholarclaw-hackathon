@@ -1,0 +1,116 @@
+SCHOLARCLAW POLICY GATE EXPLORATION REPORT
+
+STATUS: PRODUCTION-READY
+
+1. POLICY GATE IMPLEMENTATION
+   File: backend/policy/gate.py (250 lines)
+   Status: COMPLETE AND READY
+   - PolicyDecision dataclass
+   - ROLE_PERMISSIONS dict (student/admin)
+   - ADMIN_ONLY_ACTIONS frozenset
+   - PolicyGate class with evaluate() and enforce()
+   - policy_gate singleton
+   - enforce_policy() convenience function
+
+2. EXCEPTION HANDLING
+   File: backend/exceptions.py
+   Status: READY
+   - PolicyBlockedError with HTTP 403
+   - Custom block_reason field
+   - Exception handlers registered on FastAPI app
+   - Returns JSON with detail and block_reason
+
+3. ATTACK LOGGING
+   File: backend/audit/attack_logger.py
+   Status: PRODUCTION-READY
+   - log_attack() function available
+   - Logs event_type=POLICY_VIOLATION
+   - Logs protection_layer=POLICY_GATE
+   - Persists to AuditLog table
+   - Hash-chained for integrity
+   - Fingerprinted payloads (never raw)
+
+4. USER ROLES
+   File: backend/auth/models.py
+   Status: DEFINED
+   - ROLE_STUDENT = "STUDENT"
+   - ROLE_ADMIN = "ADMIN"
+   - User.role field in database
+
+5. ROLE PERMISSIONS
+   File: backend/policy/gate.py
+   Status: COMPLETE
+   - 8 student actions
+   - 15 admin actions (includes all student + 7 admin-only)
+
+6. SCHEMES DATABASE
+   File: backend/prisma/schema.prisma
+   Status: EXISTS
+   - ScholarshipScheme model
+   - Fields: id, name, provider, description, amount, deadline, etc.
+
+7. ARMORIQ INTEGRATION
+   File: backend/armoriq/
+   Status: ESTABLISHED
+   - InputGuard, OutputGuard classes
+   - ArmorIQMiddleware
+   - Uses PolicyBlockedError
+   - Logs via log_attack()
+
+8. CURRENT USER DEPENDENCY
+   File: backend/dependencies.py
+   Status: READY
+   - get_current_user() function
+   - Returns User object with id, role, email
+
+IMPORTING IN YOUR CODE:
+
+from policy.gate import enforce_policy
+from dependencies import get_current_user
+from fastapi import Depends, Request
+
+@router.post("/admin/endpoint")
+async def admin_endpoint(
+    user = Depends(get_current_user),
+    request: Request = None,
+):
+    await enforce_policy("manage_users", user, request)
+    return {"message": "success"}
+
+ROLE PERMISSIONS MATRIX:
+
+Action                  Student  Admin
+check_eligibility       YES      YES
+view_schemes            YES      YES
+view_own_profile        YES      YES
+update_own_profile      YES      YES
+view_own_audit_logs     YES      YES
+generate_draft          YES      YES
+request_checklist       YES      YES
+set_reminder            YES      YES
+manage_users            NO       YES
+view_all_audit_logs     NO       YES
+verify_audit_chain      NO       YES
+view_attack_logs        NO       YES
+view_attack_summary     NO       YES
+manage_schemes          NO       YES
+system_config           NO       YES
+
+KEY FUNCTIONS:
+
+await policy_gate.evaluate(action, user_role) -> PolicyDecision
+await policy_gate.enforce(action, user, request) -> PolicyDecision
+await enforce_policy(action, user, request) -> PolicyDecision
+
+ATTACK LOGGING:
+
+When blocked, logs:
+- event_type: POLICY_VIOLATION
+- attacker_ip: extracted from request
+- protection_layer: POLICY_GATE
+- student_id: user UUID
+- block_reason: reason for block
+- attack_payload: fingerprinted action details
+
+ALL FILES READY FOR USE
+NO ADDITIONAL IMPLEMENTATION REQUIRED

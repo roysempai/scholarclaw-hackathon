@@ -67,10 +67,10 @@ model ScholarshipScheme {
   name                String
   provider            String?
   description         String?
-  amount              String?
+  amount              Float?
   deadline            DateTime?
-  eligibilityCriteria String?   @map("eligibility_criteria")
-  requiredDocuments   String?   @map("required_documents")
+  eligibilityCriteria Json?     @map("eligibility_criteria")
+  requiredDocuments   Json?     @map("required_documents")
   applicationUrl      String?   @map("application_url")
   isActive            Boolean   @default(true) @map("is_active")
   createdAt           DateTime  @default(now()) @map("created_at")

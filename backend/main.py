@@ -93,19 +93,35 @@ register_exception_handlers(app)
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.FRONTEND_URL, "http://localhost:3000", "http://localhost:5173"],
+    allow_origins=[settings.FRONTEND_URL, "http://localhost:3000", "http://localhost:5173", "http://localhost:5174"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# ArmorIQ middleware (Prompt Injection Detection)
+from armoriq.middleware import ArmorIQMiddleware
+app.add_middleware(ArmorIQMiddleware)
+
 
 # ── Register Routers ─────────────────────────────────────────────
 
 
+# Auth router
+from auth.router import router as auth_router
+app.include_router(auth_router)
+
 # Profile router
 from profile.router import router as profile_router
-app.include_router(profile_router, prefix="/api/profiles")
+app.include_router(profile_router)
+
+# Schemes router
+from schemes.router import router as schemes_router
+app.include_router(schemes_router)
+
+# Audit router
+from audit.router import router as audit_router
+app.include_router(audit_router)
 
 # Orchestrator router
 from orchestrator.router import router as orchestrator_router

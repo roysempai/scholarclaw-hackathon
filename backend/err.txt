@@ -1,0 +1,78 @@
+Traceback (most recent call last):
+  File "C:\Github Hackathon\version 1\scholarclaw\backend\.venv\Lib\site-packages\transformers\utils\import_utils.py", line 2207, in __getattr__
+    module = self._get_module(self._class_to_module[name])
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Github Hackathon\version 1\scholarclaw\backend\.venv\Lib\site-packages\transformers\utils\import_utils.py", line 2441, in _get_module
+    raise e
+  File "C:\Github Hackathon\version 1\scholarclaw\backend\.venv\Lib\site-packages\transformers\utils\import_utils.py", line 2439, in _get_module
+    return importlib.import_module("." + module_name, self.__name__)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IYAD\AppData\Local\Programs\Python\Python311\Lib\importlib\__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "C:\Github Hackathon\version 1\scholarclaw\backend\.venv\Lib\site-packages\transformers\generation\utils.py", line 44, in <module>
+    from ..masking_utils import create_masks_for_generate
+  File "C:\Github Hackathon\version 1\scholarclaw\backend\.venv\Lib\site-packages\transformers\masking_utils.py", line 40, in <module>
+    from torch._dynamo._trace_wrapped_higher_order_op import TransformGetItemToIndex
+  File "C:\Github Hackathon\version 1\scholarclaw\backend\.venv\Lib\site-packages\torch\_dynamo\__init__.py", line 13, in <module>
+    from . import (
+  File "C:\Github Hackathon\version 1\scholarclaw\backend\.venv\Lib\site-packages\torch\_dynamo\aot_compile.py", line 15, in <module>
+    from torch._dynamo.convert_frame import GraphRuntimeEnv
+  File "C:\Github Hackathon\version 1\scholarclaw\backend\.venv\Lib\site-packages\torch\_dynamo\convert_frame.py", line 28, in <module>
+    import cProfile
+  File "C:\Users\IYAD\AppData\Local\Programs\Python\Python311\Lib\cProfile.py", line 23, in <module>
+    run.__doc__ = _pyprofile.run.__doc__
+                  ^^^^^^^^^^^^^^
+AttributeError: module 'profile' has no attribute 'run'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Github Hackathon\version 1\scholarclaw\backend\.venv\Lib\site-packages\transformers\utils\import_utils.py", line 2207, in __getattr__
+    module = self._get_module(self._class_to_module[name])
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Github Hackathon\version 1\scholarclaw\backend\.venv\Lib\site-packages\transformers\utils\import_utils.py", line 2441, in _get_module
+    raise e
+  File "C:\Github Hackathon\version 1\scholarclaw\backend\.venv\Lib\site-packages\transformers\utils\import_utils.py", line 2439, in _get_module
+    return importlib.import_module("." + module_name, self.__name__)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\IYAD\AppData\Local\Programs\Python\Python311\Lib\importlib\__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "C:\Github Hackathon\version 1\scholarclaw\backend\.venv\Lib\site-packages\transformers\models\auto\modeling_auto.py", line 21, in <module>
+    from .auto_factory import (
+  File "C:\Github Hackathon\version 1\scholarclaw\backend\.venv\Lib\site-packages\transformers\models\auto\auto_factory.py", line 43, in <module>
+    from ...generation import GenerationMixin
+  File "C:\Github Hackathon\version 1\scholarclaw\backend\.venv\Lib\site-packages\transformers\utils\import_utils.py", line 2295, in __getattr__
+    raise ModuleNotFoundError(
+ModuleNotFoundError: Could not import module 'GenerationMixin'. Are this object's requirements defined correctly?
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Github Hackathon\version 1\scholarclaw\backend\dump_err.py", line 3, in <module>
+    import armoriq.tests.test_guard
+  File "C:\Github Hackathon\version 1\scholarclaw\backend\armoriq\__init__.py", line 7, in <module>
+    from .guard import InputGuard, OutputGuard
+  File "C:\Github Hackathon\version 1\scholarclaw\backend\armoriq\guard.py", line 38, in <module>
+    from pytector.detector import PromptInjectionDetector  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Github Hackathon\version 1\scholarclaw\vendor\pytector\src\pytector\__init__.py", line 1, in <module>
+    from .detector import PromptInjectionDetector
+  File "C:\Github Hackathon\version 1\scholarclaw\vendor\pytector\src\pytector\detector.py", line 5, in <module>
+    from transformers import AutoModelForSequenceClassification, AutoTokenizer
+  File "C:\Github Hackathon\version 1\scholarclaw\backend\.venv\Lib\site-packages\transformers\utils\import_utils.py", line 2295, in __getattr__
+    raise ModuleNotFoundError(
+ModuleNotFoundError: Could not import module 'AutoModelForSequenceClassification'. Are this object's requirements defined correctly?

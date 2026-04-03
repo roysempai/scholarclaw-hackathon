@@ -85,15 +85,15 @@ async def check_eligibility(
             "reasoning": "No scheme found to check eligibility against.",
         }
 
-    # Check if Claude API is available
-    if not settings.ANTHROPIC_API_KEY:
-        logger.warning("ANTHROPIC_API_KEY not set — using rule-based eligibility")
+    # Check if Groq API is available
+    if not settings.GROQ_API_KEY:
+        logger.warning("GROQ_API_KEY not set — using rule-based eligibility")
         return await _rule_based_eligibility(student_profile, scheme)
 
     try:
-        return await _claude_eligibility_check(student_profile, scheme)
+        return await _llm_eligibility_check(student_profile, scheme)
     except Exception as exc:
-        logger.error("Claude eligibility check failed: %s", exc)
+        logger.error("LLM eligibility check failed: %s", exc)
         # Fall back to rule-based check
         return await _rule_based_eligibility(student_profile, scheme)
 
@@ -119,20 +119,20 @@ async def _get_scheme(scheme_id: str) -> Optional[dict]:
     return None
 
 
-async def _claude_eligibility_check(
+async def _llm_eligibility_check(
     student_profile: dict[str, Any],
     scheme: dict[str, Any],
 ) -> dict[str, Any]:
     """
-    Check eligibility using Claude API with Instructor.
+    Check eligibility using Groq API with LLaMA model.
     """
-    import instructor
-    from anthropic import Anthropic
+    from groq import Groq
+    import json as json_module
 
-    client = instructor.from_anthropic(Anthropic(api_key=settings.ANTHROPIC_API_KEY))
+    client = Groq(api_key=settings.GROQ_API_KEY)
 
     # Build the prompt
-    prompt = f"""You are an eligibility checker for scholarship schemes.
+    prompt = f"""You are an eligibility checker for scholarship schemes. Respond ONLY with valid JSON.
 
 STUDENT PROFILE:
 {_format_profile(student_profile)}
@@ -153,23 +153,40 @@ TASK:
 6. Provide a clear reasoning for your determination
 
 Be thorough but fair. If criteria are ambiguous, give the student the benefit of the doubt.
-"""
 
-    result = client.messages.create(
-        model="claude-3-5-sonnet-20241022",
-        max_tokens=1024,
+Respond with this exact JSON structure:
+{{"eligible": true/false, "score": 0.0-1.0, "missing_fields": [], "matched_criteria": [], "unmatched_criteria": [], "reasoning": "explanation"}}"""
+
+    response = client.chat.completions.create(
+        model=settings.GROQ_MODEL,
         messages=[{"role": "user", "content": prompt}],
-        response_model=EligibilityResult,
+        max_tokens=1024,
+        temperature=0.1,
     )
 
-    return {
-        "eligible": result.eligible,
-        "score": result.score,
-        "missing_fields": result.missing_fields,
-        "matched_criteria": result.matched_criteria,
-        "unmatched_criteria": result.unmatched_criteria,
-        "reasoning": result.reasoning,
-    }
+    # Parse the response
+    content = response.choices[0].message.content.strip()
+
+    # Try to extract JSON from the response
+    try:
+        # Handle potential markdown code blocks
+        if "```json" in content:
+            content = content.split("```json")[1].split("```")[0].strip()
+        elif "```" in content:
+            content = content.split("```")[1].split("```")[0].strip()
+
+        result = json_module.loads(content)
+        return {
+            "eligible": result.get("eligible", False),
+            "score": float(result.get("score", 0.0)),
+            "missing_fields": result.get("missing_fields", []),
+            "matched_criteria": result.get("matched_criteria", []),
+            "unmatched_criteria": result.get("unmatched_criteria", []),
+            "reasoning": result.get("reasoning", "No reasoning provided"),
+        }
+    except json_module.JSONDecodeError:
+        logger.warning("Failed to parse LLM response as JSON, using rule-based fallback")
+        return await _rule_based_eligibility(student_profile, scheme)
 
 
 async def _rule_based_eligibility(

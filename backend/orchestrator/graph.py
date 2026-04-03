@@ -372,7 +372,7 @@ def route_after_policy_check(state: OrchestratorState) -> str:
     if action == "check_eligibility":
         return "eligibility"
     elif action == "generate_draft":
-        return "draft"
+        return "draft_gen"
     elif action == "set_reminder":
         return "audit"  # Reminders are handled separately
     else:
@@ -414,7 +414,7 @@ def build_orchestrator_graph() -> StateGraph:
     builder.add_node("input_guard", input_guard_node)
     builder.add_node("policy_check", policy_check_node)
     builder.add_node("eligibility", eligibility_node)
-    builder.add_node("draft", draft_node)
+    builder.add_node("draft_gen", draft_node)
     builder.add_node("audit", audit_node)
     builder.add_node("output_guard", output_guard_node)
 
@@ -430,7 +430,7 @@ def build_orchestrator_graph() -> StateGraph:
         route_after_policy_check,
         {
             "eligibility": "eligibility",
-            "draft": "draft",
+            "draft_gen": "draft_gen",
             "audit": "audit",
         },
     )
@@ -439,7 +439,7 @@ def build_orchestrator_graph() -> StateGraph:
     builder.add_edge("eligibility", "audit")
 
     # Draft -> audit
-    builder.add_edge("draft", "audit")
+    builder.add_edge("draft_gen", "audit")
 
     # Audit -> output_guard
     builder.add_edge("audit", "output_guard")

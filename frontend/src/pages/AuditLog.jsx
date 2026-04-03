@@ -26,7 +26,7 @@ export default function AuditLog() {
     setLoading(true);
     try {
       const auditRes = await auditAPI.getChain({ limit: 50 });
-      setAuditEntries(auditRes.data.entries || []);
+      setAuditEntries(auditRes.data.logs || []);
 
       // Try to fetch attacks (admin only)
       try {
