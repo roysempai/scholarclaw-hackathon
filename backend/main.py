@@ -91,9 +91,21 @@ app = FastAPI(
 register_exception_handlers(app)
 
 # CORS middleware
+import os
+_frontend_url = os.environ.get("FRONTEND_URL", settings.FRONTEND_URL)
+_allowed_origins = [
+    _frontend_url,
+    "https://frontend-gold-omega-16.vercel.app",
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://localhost:5174",
+]
+# Remove duplicates and empty strings
+_allowed_origins = list(set(o for o in _allowed_origins if o))
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.FRONTEND_URL, "http://localhost:3000", "http://localhost:5173", "http://localhost:5174"],
+    allow_origins=_allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
