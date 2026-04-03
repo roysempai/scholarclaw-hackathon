@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git clone:*)",
+      "Bash(git -C vendor/fastapi-rbac rev-parse --short HEAD)",
+      "Bash(git -C vendor/pytector rev-parse --short HEAD)",
+      "Bash(git -C vendor/attest rev-parse --short HEAD)",
+      "Read(//c/Users/IYAD/ScholarClaw/**)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\IYAD\\ScholarClaw\\vendor",
+      "C:\\Users\\IYAD\\ScholarClaw"
+    ]
+  }
+}

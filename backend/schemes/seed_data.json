@@ -1,0 +1,55 @@
+[
+  {
+    "id": "scheme-001",
+    "name": "National Scholarship Portal - Post Matric Scholarship for SC Students",
+    "provider": "Ministry of Social Justice and Empowerment",
+    "description": "Financial assistance to SC students studying at post-matriculation or post-secondary stage to enable them to complete their education.",
+    "amount": 50000,
+    "deadline": "2026-10-31",
+    "eligibility_criteria": {
+      "category": ["SC"],
+      "income_limit": 250000,
+      "states": [],
+      "education_levels": ["Class 11", "Class 12", "Undergraduate", "Postgraduate", "PhD"],
+      "min_percentage": 50,
+      "max_age": null,
+      "gender": null,
+      "disability_required": false
+    },
+    "required_documents": [
+      "Caste Certificate",
+      "Income Certificate",
+      "Previous Year Marksheet",
+      "Bank Account Details",
+      "Aadhaar Card",
+      "Institution Verification"
+    ],
+    "application_url": "https://scholarships.gov.in/"
+  },
+  {
+    "id": "scheme-002",
+    "name": "Prime Minister's Scholarship Scheme for Central Armed Police Forces",
+    "provider": "Ministry of Home Affairs",
+    "description": "Scholarship for dependent wards and widows of CAPF/AR personnel for professional degree courses.",
+    "amount": 36000,
+    "deadline": "2026-09-30",
+    "eligibility_criteria": {
+      "category": ["SC", "ST", "OBC", "General", "EWS"],
+      "income_limit": null,
+      "states": [],
+      "education_levels": ["Undergraduate"],
+      "min_percentage": 60,
+      "max_age": 25,
+      "gender": null,
+      "disability_required": false
+    },
+    "required_documents": [
+      "Service Certificate of Parent",
+      "Previous Year Marksheet",
+      "Bank Account Details",
+      "Aadhaar Card",
+      "Bonafide Certificate from Institution"
+    ],
+    "application_url": "https://scholarships.gov.in/"
+  }
+]
