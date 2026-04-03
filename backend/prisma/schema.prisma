@@ -25,20 +25,138 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  // Relations (to be added)
-  // profile      Profile?
-  // applications Application[]
-  // auditLogs    AuditLog[]
+  // Relations
+  profile       StudentProfile?
+  auditLogs     AuditLog[]
+  refreshTokens RefreshToken[]
 
   @@map("users")
 }
 
 // ============================================
-// Additional models to be added:
-// - Profile (user profile with eligibility data)
-// - Scheme (scholarship schemes)
-// - Application (user applications to schemes)
-// - AuditLog (hash chain audit entries)
-// - AttackLog (security incident logs)
-// - RefreshToken (JWT refresh tokens)
+// Student Profile - Eligibility data
 // ============================================
+model StudentProfile {
+  id              String    @id @default(uuid())
+  userId          String    @unique @map("user_id")
+  gender          String?
+  category        String?   // GEN, OBC, SC, ST
+  annualIncome    Float?    @map("annual_income")
+  state           String?
+  district        String?
+  educationLevel  String?   @map("education_level")
+  institution     String?
+  course          String?
+  percentage      Float?
+  disabilityStatus Boolean? @default(false) @map("disability_status")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reminderStatuses  ReminderStatus[]
+
+  @@map("student_profiles")
+}
+
+// ============================================
+// Scholarship Scheme - Verified schemes
+// ============================================
+model ScholarshipScheme {
+  id                  String    @id @default(uuid())
+  name                String
+  provider            String?
+  description         String?
+  amount              String?
+  deadline            DateTime?
+  eligibilityCriteria String?   @map("eligibility_criteria")
+  requiredDocuments   String?   @map("required_documents")
+  applicationUrl      String?   @map("application_url")
+  isActive            Boolean   @default(true) @map("is_active")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  reminderStatuses ReminderStatus[]
+
+  @@map("scholarship_schemes")
+}
+
+// ============================================
+// Reminder Status - Track sent reminders
+// ============================================
+model ReminderStatus {
+  id            String    @id @default(uuid())
+  studentId     String    @map("student_id")
+  schemeId      String    @map("scheme_id")
+  thresholdDays Int       @map("threshold_days") // 30, 7, or 1
+  deadlineDate  DateTime  @map("deadline_date")
+  sent          Boolean   @default(false)
+  sentAt        DateTime? @map("sent_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  student StudentProfile    @relation(fields: [studentId], references: [userId], onDelete: Cascade)
+  scheme  ScholarshipScheme @relation(fields: [schemeId], references: [id], onDelete: Cascade)
+
+  // Unique constraint: one reminder per student-scheme-threshold combo
+  @@unique([studentId, schemeId, thresholdDays])
+  @@map("reminder_statuses")
+}
+
+// ============================================
+// Audit Log - Hash-chained audit trail
+// ============================================
+model AuditLog {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  action       String
+  inputHash    String   @map("input_hash")
+  outputHash   String   @map("output_hash")
+  agent        String
+  metadata     String?  // JSON string
+  previousHash String?  @map("previous_hash")
+  entryHash    String?  @map("entry_hash")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("audit_logs")
+}
+
+// ============================================
+// Attack Log - Security incident logging
+// ============================================
+model AttackLog {
+  id              String   @id @default(uuid())
+  timestamp       DateTime @default(now())
+  eventType       String   @map("event_type")
+  attackerIp      String   @map("attacker_ip")
+  protectionLayer String   @map("protection_layer")
+  studentId       String?  @map("student_id")
+  blockReason     String?  @map("block_reason")
+  attackPayload   String?  @map("attack_payload")
+
+  @@index([timestamp])
+  @@index([eventType])
+  @@map("attack_logs")
+}
+
+// ============================================
+// Refresh Token - JWT refresh tokens
+// ============================================
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
